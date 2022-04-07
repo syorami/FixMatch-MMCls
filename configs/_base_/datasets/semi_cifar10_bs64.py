@@ -1,6 +1,3 @@
-from sklearn import metrics
-
-
 _base_ = [f'./rand_aug.py']
 
 # dataset settings

@@ -4,8 +4,7 @@ arch = dict(
     backbone=dict(
         type='WideResNetCIFAR',
         depth=28,
-        widen_factor=2,
-        drop_rate=0.),
+        widen_factor=2),
     neck=dict(type='GlobalAveragePooling'),
     head=dict(
         type='LinearClsHead',

@@ -18,3 +18,7 @@ model = dict(
         inference_on=('student', 'teacher')
     )
 )
+
+custom_hooks = [
+    dict(type="MeanTeacher", momentum=0.999, interval=1, warm_up=0),
+]
