@@ -11,11 +11,21 @@ meta_keys=('filename', 'ori_filename', 'ori_shape',
            'img_shape', 'flip', 'flip_direction',
            'img_norm_cfg', 'tag')
 
-weak_pipeline = [
+train_pipeline = [
     dict(type='RandomCrop', size=32, padding=4),
     dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
     dict(type='Normalize', **img_norm_cfg),
     dict(type="ExtraAttrs", tag="sup"),
+    dict(type='ImageToTensor', keys=['img']),
+    dict(type='ToTensor', keys=['gt_label']),
+    dict(type='Collect', keys=['img', 'gt_label'], meta_keys=meta_keys)
+]
+
+weak_pipeline = [
+    dict(type='RandomCrop', size=32, padding=4),
+    dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
+    dict(type='Normalize', **img_norm_cfg),
+    dict(type="ExtraAttrs", tag="unsup_weak"),
     dict(type='ImageToTensor', keys=['img']),
     dict(type='ToTensor', keys=['gt_label']),
     dict(type='Collect', keys=['img', 'gt_label'], meta_keys=meta_keys)
@@ -35,19 +45,24 @@ strong_pipeline = [
             pad_val=[round(x) for x in img_norm_cfg['mean'][::-1]],
             interpolation='bicubic')),
     dict(type='Normalize', **img_norm_cfg),
-    dict(type="ExtraAttrs", tag="unsup"),
+    dict(type="ExtraAttrs", tag="unsup_strong"),
     dict(type='ImageToTensor', keys=['img']),
     dict(type='ToTensor', keys=['gt_label']),
     dict(type='Collect', keys=['img', 'gt_label'], meta_keys=meta_keys)
 ]
+
+unsup_pipeline = [
+    dict(type='MultiBranch', weak_aug=weak_pipeline, strong_aug=strong_pipeline)
+]
+
 test_pipeline = [
     dict(type='Normalize', **img_norm_cfg),
     dict(type='ImageToTensor', keys=['img']),
     dict(type='Collect', keys=['img'])
 ]
 
-samples_per_gpu = 64
-batch_nums = (8, 56)
+samples_per_gpu = 512
+batch_nums = (64, 448)
 data = dict(
     samples_per_gpu=samples_per_gpu,
     workers_per_gpu=2,
@@ -63,14 +78,14 @@ data = dict(
             dataset=dict(
                 type=dataset_type,
                 data_prefix='data/cifar10',
-                pipeline=weak_pipeline)),
+                pipeline=train_pipeline)),
         unsup=dict(
             type='SubsetDataset',
             indices='data/cifar10_4000/unlabeled_idx.pkl',
             dataset=dict(
                 type=dataset_type,
                 data_prefix='data/cifar10',
-                pipeline=strong_pipeline))),
+                pipeline=unsup_pipeline))),
     val=dict(
         type=dataset_type,
         data_prefix='data/cifar10',
