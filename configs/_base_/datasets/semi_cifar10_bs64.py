@@ -12,7 +12,7 @@ meta_keys=('filename', 'ori_filename', 'ori_shape',
            'img_norm_cfg', 'tag')
 
 train_pipeline = [
-    dict(type='RandomCrop', size=32, padding=4),
+    dict(type='RandomCrop', size=32, padding=4, padding_mode='reflect'),
     dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
     dict(type='Normalize', **img_norm_cfg),
     dict(type="ExtraAttrs", tag="sup"),
@@ -22,7 +22,7 @@ train_pipeline = [
 ]
 
 weak_pipeline = [
-    dict(type='RandomCrop', size=32, padding=4),
+    dict(type='RandomCrop', size=32, padding=4, padding_mode='reflect'),
     dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
     dict(type='Normalize', **img_norm_cfg),
     dict(type="ExtraAttrs", tag="unsup_weak"),
@@ -32,7 +32,7 @@ weak_pipeline = [
 ]
 
 strong_pipeline = [
-    dict(type='RandomCrop', size=32, padding=4),
+    dict(type='RandomCrop', size=32, padding=4, padding_mode='reflect'),
     dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
     dict(
         type='RandAugment',
@@ -44,6 +44,7 @@ strong_pipeline = [
         hparams=dict(
             pad_val=[round(x) for x in img_norm_cfg['mean'][::-1]],
             interpolation='bicubic')),
+    dict(type='Cutout', shape=32 * 0.5, prob=0.5),
     dict(type='Normalize', **img_norm_cfg),
     dict(type="ExtraAttrs", tag="unsup_strong"),
     dict(type='ImageToTensor', keys=['img']),
