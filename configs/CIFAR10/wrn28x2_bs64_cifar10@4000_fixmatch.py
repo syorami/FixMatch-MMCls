@@ -22,3 +22,5 @@ model = dict(
 custom_hooks = [
     dict(type="MeanTeacher", momentum=0.999, interval=1, warm_up=0),
 ]
+
+fp16 = dict(loss_scale='dynamic')

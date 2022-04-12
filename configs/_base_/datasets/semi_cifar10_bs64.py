@@ -66,7 +66,7 @@ samples_per_gpu = 512
 batch_nums = (64, 448)
 data = dict(
     samples_per_gpu=samples_per_gpu,
-    workers_per_gpu=2,
+    workers_per_gpu=8,
     sampler=dict(type='DistributedBalanceSampler',
                  samples_per_gpu=samples_per_gpu,
                  batch_nums=batch_nums,
